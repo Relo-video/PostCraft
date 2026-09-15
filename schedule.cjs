@@ -35,7 +35,19 @@ function arg(name) {
 const manifestPath = path.resolve(__dirname, arg('--manifest') || 'posts.json');
 
 function readManifest() {
-  return JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  if (!fs.existsSync(manifestPath)) {
+    // First run. Say what to do rather than throwing a raw ENOENT at someone who
+    // has just cloned the repo.
+    throw new Error(
+      'No posts.json yet.\n\n' +
+      '  Run /setup-social in Claude Code to create it along with your profile,\n' +
+      '  or start from the example:  cp posts.example.json posts.json');
+  }
+  try {
+    return JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  } catch (e) {
+    throw new Error('posts.json is not valid JSON: ' + e.message);
+  }
 }
 
 function list() {

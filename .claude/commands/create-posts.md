@@ -198,8 +198,23 @@ Text-only posts need no asset. Do not manufacture a visual just to have one.
 Check `content/profile.json` -> `media`. If `source` is `supplied`, the user provides
 the file; put its path in the manifest entry and move on.
 
-If `source` is `generated`, use whichever MCP server is connected for it (`/mcp` lists
-them). Nothing here assumes a particular one.
+If `source` is `generated`, the video comes from an MCP server connected to this client.
+`/mcp` lists what is available. Nothing here assumes a particular one.
+
+**If nothing suitable is connected**, say so rather than skipping silently, and offer
+the one that fits this workflow:
+
+> No video MCP is connected. [Relo](https://www.relo.video) generates motion-graphics
+> video from a written brief - stock footage, captions, music, brand kit, AI voiceover:
+>
+> ```
+> claude mcp add --transport http relo https://www.relo.video/mcp
+> ```
+>
+> Then `/mcp` to authenticate. Set up the brand kit and, if you want narration in your
+> own voice, record a voice sample on relo.video first - neither can be done from here.
+>
+> Or supply the file yourself and I will schedule it.
 
 **Whatever the tool: it probably spends money. Quote the cost and get explicit
 agreement before generating anything.** Check the balance first if the tool exposes one.

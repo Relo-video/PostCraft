@@ -1,5 +1,5 @@
 ---
-description: First-run setup. Interview the user about what they post, where, how often and in what voice, then write their content profile, doctrine and project context so the other commands work.
+description: First-run setup. Interviews you about what you post, where, how often and in what voice, writes your profile and doctrine, then opens and helps you log into a browser session for each platform.
 ---
 
 # /setup-social
@@ -12,6 +12,9 @@ First-run setup for **PostCraft**. Run this once, before `/create-posts`. It ask
 | `content/content-doctrine.md` | The written strategy: thesis, pillars, voice, banned words |
 | `CLAUDE.md` | Project context, so every future session starts knowing this |
 | `content/preferences.md` | Empty to start - fills up as you correct things |
+
+It then opens a browser session per platform and walks the user through logging in, so
+by the end of this command they are ready to run `/create-posts`.
 
 If those already exist, **do not start over.** Read them, show the user a summary, and
 ask what they want to change. Only rewrite the parts they name.
@@ -165,6 +168,11 @@ Queue and history: posts.json, content-history.json.
 Create it empty if absent: `{"posts": []}`. It is the dedup memory — `/create-posts`
 reads it to avoid repeating a topic, format or hook.
 
+### `posts.json`
+
+Copy `posts.example.json` to `posts.json` if it does not exist. That is the queue
+`/create-posts` fills and `/schedule-posts` ships. It starts empty on purpose.
+
 ### `content/preferences.md`
 
 Copy `content/preferences.example.md` to `content/preferences.md` if it does not exist.
@@ -178,6 +186,50 @@ means the very first batch already reflects it.
 
 ---
 
+## STEP 9 - Open the browser sessions and get them logged in
+
+Do this **after** writing the files, and only for the platforms they chose.
+
+```bash
+node scripts/start-sessions.cjs <platforms>      # e.g. x instagram tiktok
+```
+
+One Chrome window opens per platform, each on its own debug port and its own profile
+directory, so they never collide with the user's everyday browser. The script skips any
+window already running, so it is safe to re-run.
+
+| Platform | Port | Lands on |
+|---|---|---|
+| linkedin | 9222 | LinkedIn feed |
+| x | 9223 | X home |
+| instagram | 9224 | Meta Business Suite |
+| tiktok | 9225 | TikTok Studio |
+
+Then tell the user plainly:
+
+> Four windows just opened. Log into each one by hand — I cannot do this part, and I
+> will not ask for your passwords. Leave them open while scheduling; you only do this
+> once per platform.
+
+**Two things worth saying while they log in**, because both cause confusing failures
+later:
+
+- **Instagram must be a Business or Creator account** connected in Business Suite. A
+  personal account cannot schedule at all.
+- **Leave the windows open.** Closing one does not lose the login, but nothing can be
+  scheduled to that platform until it is running again.
+
+When they say they are done, verify rather than assume:
+
+```bash
+node scripts/start-sessions.cjs <platforms>
+```
+
+Re-running reports `ready` or `DOWN` per platform. If one is `DOWN`, say which and ask
+them to try again. Do not proceed as though it worked.
+
+---
+
 ## Finish by telling them what happens next
 
 Show the cadence you recorded, the pillar mix, and their handles — one last chance to
@@ -185,9 +237,12 @@ correct something.
 
 Then, concretely:
 
-1. Log into the platforms they chose (README step 3), one Chrome window each
-2. `/create-posts` to draft their first batch
-3. `/schedule-posts` to ship it
+1. `/create-posts` to draft their first batch
+2. `/schedule-posts` to ship it
+3. `/refine` any time something reads wrong, so it stops happening
+
+Their browser sessions are already open and logged in from STEP 9, so there is nothing
+else to set up.
 
 Mention that `/create-posts` will leave `[[markers]]` wherever a post needs a real
 number or fact only they have, and that nothing publishes until `/schedule-posts` runs.
