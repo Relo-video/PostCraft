@@ -1,0 +1,63 @@
+{
+  "_comment": "PostCraft queue. Copy this to posts.json, then add entries to \"posts\". The queue starts EMPTY on purpose - see _examples below for a worked sample of every post type, and copy the one you need into \"posts\". Run: node schedule.cjs --list",
+  "_ports": {
+    "linkedin": 9222,
+    "x": 9223,
+    "instagram": 9224,
+    "tiktok": 9225
+  },
+  "_when": "LOCAL wall-clock time, 24h, YYYY-MM-DDTHH:MM. Every scheduler uses the browser's own timezone, so if your audience is elsewhere, convert first. Minutes must be 00/15/30/45.",
+  "_types": "text | image | images | document (LinkedIn PDF) | video",
+  "_platforms": "linkedin | x | instagram | tiktok",
+  "posts": [],
+  "_examples": [
+    {
+      "id": "example-text-x",
+      "platform": "x",
+      "type": "text",
+      "when": "2026-01-15T09:00",
+      "status": "pending",
+      "caption": "A text-only post. No media needed.\n\nKeep the hook on the first line - that is all most people read.\n\nPut any link in the FIRST REPLY, never in the post body: a URL here costs 40-70% of your distribution."
+    },
+    {
+      "id": "example-images-x",
+      "platform": "x",
+      "type": "images",
+      "files": [
+        "output/2026-01-15/1_hook.png",
+        "output/2026-01-15/2_detail.png"
+      ],
+      "when": "2026-01-15T13:00",
+      "status": "pending",
+      "caption": "Up to 4 images on X, 10 on Instagram, 20 on LinkedIn."
+    },
+    {
+      "id": "example-document-li",
+      "platform": "linkedin",
+      "type": "document",
+      "file": "output/2026-01-15/carousel.pdf",
+      "documentTitle": "Shown as the title above a LinkedIn PDF carousel",
+      "when": "2026-01-15T16:00",
+      "status": "pending",
+      "caption": "LinkedIn documents are PDFs. Build one with assets/build_assets.cjs."
+    },
+    {
+      "id": "example-video-ig",
+      "platform": "instagram",
+      "type": "video",
+      "file": "videos/my-clip.mp4",
+      "when": "2026-01-16T09:00",
+      "status": "pending",
+      "caption": "9:16 video. Instagram routes this to Reels automatically - the feed composer refuses anything taller than 4:5."
+    },
+    {
+      "id": "example-video-tt",
+      "platform": "tiktok",
+      "type": "video",
+      "file": "videos/my-clip.mp4",
+      "when": "2026-01-16T09:00",
+      "status": "pending",
+      "caption": "The same file cross-posts to X, Instagram and TikTok. One entry per platform, caption written natively for each. TikTok allows 4000 characters."
+    }
+  ]
+}

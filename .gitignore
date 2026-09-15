@@ -1,0 +1,23 @@
+# Browser profiles hold LIVE logged-in sessions. Never commit these.
+*-profile/
+*_profile/
+
+# Your queue, history, strategy and learned preferences. Personal, not shareable.
+posts.json
+content-history.json
+content/content-doctrine.md
+content/preferences.md
+content/profile.json
+content/voice-profile.md
+CLAUDE.md
+
+# Generated assets, briefs and run screenshots
+output/
+videos/
+briefs/
+*.mp4
+*.png
+!assets/**/*.png
+
+node_modules/
+.claude/settings.local.json

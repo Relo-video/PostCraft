@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Startup Failure Rates by Industry Sector</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&family=Instrument+Serif:ital@1&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    background: #F8F7F3;
+    width: 1080px;
+    height: 1080px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .card {
+    width: 1080px;
+    height: 1080px;
+    background: #F8F7F3;
+    padding: 64px 72px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+  }
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #5E6AD2;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border-radius: 4px;
+  }
+  .date-label {
+    font-size: 14px;
+    color: #6B6B6B;
+    font-style: italic;
+    font-family: 'Instrument Serif', Georgia, serif;
+  }
+  
+  .header-block {
+    margin-top: 10px;
+    text-align: center;
+  }
+  .title {
+    font-size: 68px;
+    font-weight: 900;
+    color: #111111;
+    line-height: 1.1;
+    margin-bottom: 12px;
+    letter-spacing: -2px;
+  }
+  .title span {
+    color: #5E6AD2;
+    font-style: italic;
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-weight: 400;
+  }
+  .subtitle {
+    font-size: 19px;
+    color: #555555;
+    max-width: 850px;
+    margin: 0 auto;
+    line-height: 1.4;
+  }
+
+  .content-area {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    margin: 40px 0;
+    padding: 0 20px;
+  }
+
+  .bar-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .bar-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 18px;
+    font-weight: 700;
+    color: #111111;
+  }
+
+  .bar-label {
+    letter-spacing: -0.5px;
+  }
+
+  .bar-value {
+    font-size: 22px;
+    font-weight: 900;
+    color: #111111;
+  }
+
+  .bar-track {
+    width: 100%;
+    height: 24px;
+    background-color: #E8E7E3;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 1s ease-in-out;
+  }
+
+  .takeaway-box {
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .takeaway-text {
+    font-size: 22px;
+    color: #111111;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: -0.5px;
+  }
+
+  .takeaway-text span {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-style: italic;
+    color: #5E6AD2;
+    font-size: 28px;
+  }
+
+  .footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-top: 1px solid #E8E7E3;
+    padding-top: 24px;
+  }
+  .source {
+    font-size: 11px;
+    color: #9B8E7E;
+    font-family: monospace;
+  }
+  .brand {
+    font-size: 18px;
+    font-weight: 800;
+    color: #5E6AD2;
+    letter-spacing: -0.3px;
+  }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="top-bar">
+    <div class="badge">{{BADGE}}</div>
+    <div class="date-label">{{DATE_LABEL}}</div>
+  </div>
+  
+  <div class="header-block">
+    <div class="title">{{TITLE_MAIN}} <span>{{TITLE_SPAN}}</span></div>
+    <div class="subtitle">{{SUBTITLE}}</div>
+  </div>
+
+  <div class="content-area">
+    {{BAR_ROWS}}
+  </div>
+
+  <div class="takeaway-box">
+    <div class="takeaway-text">Takeaway: <span>{{TAKEAWAY_NUM}}</span> {{TAKEAWAY_TEXT}}</div>
+  </div>
+
+  <div class="footer">
+    <div class="source">{{SOURCE}}</div>
+    <div class="brand">@yourhandle</div>
+  </div>
+</div>
+</body>
+</html>

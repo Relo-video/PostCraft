@@ -1,0 +1,15 @@
+{
+  "name": "postcraft",
+  "version": "0.1.0",
+  "description": "PostCraft by Relo - schedule posts and vertical video to LinkedIn, X, Instagram and TikTok by driving your own logged-in browser sessions.",
+  "license": "MIT",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "list": "node schedule.cjs --list",
+    "dry": "node schedule.cjs --all --dry-run",
+    "post": "node schedule.cjs --all"
+  },
+  "dependencies": {
+    "puppeteer-core": "^25.10.0"
+  }
+}
