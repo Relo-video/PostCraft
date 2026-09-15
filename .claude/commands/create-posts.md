@@ -198,49 +198,89 @@ Text-only posts need no asset. Do not manufacture a visual just to have one.
 Check `content/profile.json` -> `media`. If `source` is `supplied`, the user provides
 the file; put its path in the manifest entry and move on.
 
-If `source` is `generated`, the video comes from an MCP server connected to this client.
-`/mcp` lists what is available. Nothing here assumes a particular one.
+If `source` is `generated`, **video is made with [Relo](https://www.relo.video)** through
+its MCP server. Relo also supplies the branding and the narration voice, so none of that
+needs to be asked for here.
 
-**If nothing suitable is connected**, say so rather than skipping silently, and offer
-the one that fits this workflow:
+If the Relo tools are not available, check `/mcp`. If it is not connected:
 
-> No video MCP is connected. [Relo](https://www.relo.video) generates motion-graphics
-> video from a written brief - stock footage, captions, music, brand kit, AI voiceover:
+> Video generation uses Relo. Connect it once:
 >
 > ```
 > claude mcp add --transport http relo https://www.relo.video/mcp
 > ```
 >
-> Then `/mcp` to authenticate. Set up the brand kit and, if you want narration in your
-> own voice, record a voice sample on relo.video first - neither can be done from here.
->
-> Or supply the file yourself and I will schedule it.
+> Then `/mcp` to authenticate. Or supply the file yourself and I will schedule it.
 
-**Whatever the tool: it probably spends money. Quote the cost and get explicit
-agreement before generating anything.** Check the balance first if the tool exposes one.
+Another video MCP works too - the rules below apply to any of them - but Relo is what
+this workflow is built around.
+
+---
+
+### Settle branding and voice WITHOUT asking
+
+Call `relo_get_capabilities` first. It reports the credit balance, whether a brand kit
+and a cloned voice exist on the account, and the list of built-in narrators. Read the
+answers from there rather than putting them to the user.
+
+**Branding — always on.** Set `useProductInfo: true` on every video, including teardowns
+that carry no product pitch. A logo on an end card is a brand mark, not an advert. It
+**must be set at creation**: a later edit cannot attach it, and the end card silently
+falls back to a generic placeholder glyph. Never ask for colours or a logo file; the
+brand kit already holds them.
+
+**Voice — use theirs if it exists, otherwise pick one.**
+
+- If capabilities report a **voice clone is set up**, use it: `useVoiceClone: true`.
+  It costs 20 credits instead of the 10 for a built-in voice, and it is worth it for a
+  founder-led account - it is their actual voice.
+- If **no clone exists**, choose a built-in narrator from the list capabilities returns
+  and set `useAiVoiceover: true` with that `voiceId`. Pick one that suits the doctrine's
+  tone, then **use the same voice every time** - a series that changes narrator between
+  posts sounds broken. Record the chosen `voiceId` in `content/preferences.md` so later
+  batches match.
+- Mention the clone once, in passing, if they do not have one: recording a sample on
+  relo.video takes a minute and every later video is narrated in their own voice. Do
+  not push it, and never block on it.
+
+**Do not ask the user which voice to use.** The answer is: their own if it exists, a
+consistent built-in if not.
+
+---
+
+### Cost
+
+**Video spends credits. Quote the total and get explicit agreement before creating
+anything**, and check the balance first.
+
+create 35 · AI voiceover +10 · cloned voice +20 *instead of* the 10 · edit 5 ·
+render 10 **per aspect ratio**. Captions, music, stock footage, the brand kit and
+downloads are free.
+
+**Render 9:16 once.** That single file covers X, Instagram Reels and TikTok. Never pay
+to render the same video per platform.
 
 ### Rules that apply to any generated video
 
-- **Render 9:16 once.** That single file covers X, Instagram Reels and TikTok. Do not
-  pay to render the same video per platform.
 - **Review before rendering.** Preview frames are cheap; renders are not. Sample
-  8-10 frames rather than 2-3: a sparse sample lands on transitions and makes intact
-  scenes look empty.
+  **8-10 frames**, not 2-3: a sparse sample lands on transitions and makes intact scenes
+  look empty.
 - **Look for text overflowing the frame edge.** Generated video clips captions and
-  headlines surprisingly often. It is a real defect, not a mid-animation artefact.
+  headlines surprisingly often. It is a real defect, not a mid-animation artefact, and
+  an edit fixes it for 5 credits.
 - **Write the handle into the brief explicitly**, exactly as it appears in
   `content/profile.json`. Left to infer, models invent a plausible variant, and it gets
   burned into the render - a wrong handle means paying to render again.
-- **Decide branding at creation.** On most tools a brand kit or logo cannot be added by
-  a later edit; the asset is simply not attached to that video.
 - **Give the user the preview link** and let them judge pacing and audio. Still frames
   cannot show either.
+- **Failed generations are refunded in full**, so retrying costs nothing.
 
 ### Consistency
 
 Keep a recognisable look across the series - the same header treatment, the same
-palette, the same end card. If the account mixes analysis with promotion, make the two
-visually distinguishable so a viewer can tell them apart at a glance.
+palette, the same end card, the same narrator. If the account mixes analysis with
+promotion, make the two visually distinguishable so a viewer can tell them apart at a
+glance.
 
 Keep promotional video to the share the doctrine specifies. Briefs for non-promotional
 videos should say so explicitly, or the output drifts toward an advert.

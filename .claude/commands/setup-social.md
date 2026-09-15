@@ -100,8 +100,14 @@ decide; it is their account.
 - If generated: that is done by this AI client, or by an MCP server they connect
   (`/mcp` lists what is available). PostCraft itself holds no API keys. If nothing is
   connected, say plainly that the scheduler works fine with media they supply.
-- Do you have brand colours and a logo? Capture the hex values and put them in the
-  doctrine, so generated visuals and HTML assets stay on-brand.
+
+**Do not ask for brand colours or a logo file.** Branding is handled by the brand kit on
+the video tool's own account - for Relo, it is configured once on relo.video and applied
+automatically to every video. Asking the user to restate it here just creates a second
+copy that drifts out of date.
+
+If they have not set a brand kit up yet, mention it once as a thing worth doing on
+relo.video, and move on. It is not a blocker.
 
 ---
 

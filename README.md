@@ -57,6 +57,12 @@ the same text pasted four times.
 It builds whatever the post needs: **text, images, carousels, or motion-graphics video.**
 Everything lands in the queue as `pending`. It publishes nothing.
 
+Video is generated with [Relo](https://www.relo.video), which also supplies the branding
+and the narration voice — your own cloned voice if you have recorded one, a consistent
+built-in narrator if you have not. You are never asked for hex codes, a logo file, or
+which voice to use; it reads all of that from your Relo account. It does tell you the
+credit cost and wait for your go-ahead before generating.
+
 Where a post needs a number only you have, it writes `[[what you need]]` and lists every
 marker at the end so you can fill them in one pass. It will not invent a figure and put
 it under your name.
