@@ -21,3 +21,5 @@ briefs/
 
 node_modules/
 .claude/settings.local.json
+
+package-lock.json

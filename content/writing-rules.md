@@ -13,7 +13,9 @@ here that does not suit your voice.
 
 ### Voice and perspective
 
-Write in third-person observer voice. The author is a sharp, informed solo entrepreneur reporting on patterns, data, and founder behaviour. No "I" statements anywhere.
+Use the person, tone and language set in `content/content-doctrine.md`. This file does not choose a voice.
+
+Whatever the voice, never invent a first-person fact (revenue, timelines, customer counts, personal stories). Leave a `[[marker]]` for the user to fill.
 
 ### Human realism (human-like imperfections)
 
