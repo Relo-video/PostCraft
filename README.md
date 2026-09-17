@@ -73,6 +73,42 @@ Ships the queue. For each post it fills the real composer in your browser, **sto
 the final click** so you can look, screenshots every step, then commits and checks the
 platform's own scheduled list to confirm it actually landed.
 
+### See what is booked: the calendar
+
+```bash
+node calendar.cjs            # or: npm run calendar
+```
+
+Opens a month/week calendar of everything you have scheduled, at
+`http://localhost:4747`. Each platform has its own color and a toggle. Click a post to see
+its caption, files and exact time. Times are laid out in the audience timezone
+(America/New_York) by default. You can switch the view to your own timezone, and the
+post details always show both.
+
+The calendar opens in your browser by itself. If it does not, go to
+`http://localhost:4747`. It only works while that terminal is running, and **Ctrl+C**
+stops it. Do not double-click `calendar.html`: opened as a file, the browser blocks the
+data and the calendar looks empty. If the calendar is already open, switching back to
+its tab picks up newly scheduled posts.
+
+```bash
+node calendar.cjs --port 5000   # if 4747 is taken
+node calendar.cjs --no-open     # start the server without opening a browser
+```
+
+A fresh clone starts with an **empty calendar**. A post is added only after the scheduler
+has **successfully** scheduled it. Dry runs and failures never appear. The data lives in
+`calendar.json`, which is gitignored, so your upcoming posts never reach the repo.
+
+Already scheduled posts before the calendar existed? Pull them in once:
+
+```bash
+node calendar.cjs --backfill
+```
+
+Backfill reads each `when` in this machine's current timezone. If you scheduled those
+posts from another timezone, their times will be off.
+
 ### Whenever something reads wrong: `/refine`
 
 ```
@@ -205,6 +241,7 @@ node schedule.cjs --list                    # the queue
 node schedule.cjs --id <post-id> --dry-run  # rehearse one
 node schedule.cjs --id <post-id>            # ship one
 node schedule.cjs --all                     # ship everything pending
+node calendar.cjs                           # calendar of what is scheduled
 ```
 
 Post entries live in `posts.json`; `posts.example.json` documents every field and type.
@@ -242,8 +279,8 @@ on your machine, against your own accounts, with sessions you created by hand â€
 the terms and decide for yourself.
 
 **Never commit your profile directories.** They hold live session cookies; publishing one
-hands over your accounts. They are gitignored, and so are your queue, history, doctrine
-and preferences. Only the `.example` files are meant to be shared.
+hands over your accounts. They are gitignored, and so are your queue, history, calendar,
+doctrine and preferences. Only the `.example` files are meant to be shared.
 
 **Composers change.** A platform redesign breaks a driver. The failures are loud and the
 screenshots usually make the cause obvious. PRs welcome.

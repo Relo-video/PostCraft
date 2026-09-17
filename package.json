@@ -7,7 +7,8 @@
   "scripts": {
     "list": "node schedule.cjs --list",
     "dry": "node schedule.cjs --all --dry-run",
-    "post": "node schedule.cjs --all"
+    "post": "node schedule.cjs --all",
+    "calendar": "node calendar.cjs"
   },
   "dependencies": {
     "puppeteer-core": "^25.10.0"

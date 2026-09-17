@@ -5,6 +5,7 @@
 # Your queue, history, strategy and learned preferences. Personal, not shareable.
 posts.json
 content-history.json
+calendar.json
 content/content-doctrine.md
 content/preferences.md
 content/profile.json

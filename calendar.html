@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PostCraft Calendar</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📅</text></svg>">
+<style>
+  :root {
+    --bg: #f7f7f5; --surface: #fff; --text: #1c1c1c; --muted: #6b6b6b;
+    --line: #e3e3df; --today: #fff4d6; --out: #f0f0ec;
+    --linkedin: #0a66c2; --x: #1c1c1c; --instagram: #c13584; --tiktok: #00a6a6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141414; --surface: #1d1d1d; --text: #ececec; --muted: #9a9a9a;
+      --line: #2e2e2e; --today: #3a3220; --out: #181818;
+      --linkedin: #4c9be8; --x: #d6d6d6; --instagram: #e46aab; --tiktok: #3cc9c9;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+    font: 14px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+    padding: 16px; border-bottom: 1px solid var(--line); background: var(--surface); }
+  h1 { font-size: 18px; margin: 0 12px 0 0; }
+  #label { font-weight: 600; min-width: 180px; }
+  button, select { font: inherit; color: var(--text); background: var(--surface);
+    border: 1px solid var(--line); border-radius: 6px; padding: 5px 10px; cursor: pointer; }
+  button.on { background: var(--text); color: var(--surface); }
+  .spacer { flex: 1; }
+  .legend { display: flex; gap: 10px; flex-wrap: wrap; color: var(--muted); font-size: 12px; }
+  .legend label { display: flex; gap: 4px; align-items: center; cursor: pointer; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  main { padding: 16px; }
+  .grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr));
+    border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+  .dow { padding: 6px; font-size: 12px; color: var(--muted); background: var(--surface);
+    border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .cell { min-height: 110px; padding: 4px; background: var(--surface);
+    border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); overflow: hidden; }
+  .week .cell { min-height: 420px; }
+  .cell.out { background: var(--out); color: var(--muted); }
+  .cell.today { background: var(--today); }
+  .num { font-size: 12px; margin-bottom: 4px; }
+  .ev { display: block; width: 100%; text-align: left; margin: 0 0 3px; padding: 3px 5px;
+    border: 0; border-left: 3px solid; border-radius: 4px; background: var(--bg);
+    font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ev.past { opacity: .55; }
+  .ev b { font-weight: 600; margin-right: 4px; }
+  .empty { text-align: center; color: var(--muted); padding: 32px 16px; }
+  .empty code { background: var(--surface); padding: 2px 6px; border-radius: 4px; }
+  dialog { border: 1px solid var(--line); border-radius: 10px; background: var(--surface);
+    color: var(--text); max-width: 560px; width: calc(100% - 32px); padding: 20px; }
+  dialog::backdrop { background: rgba(0,0,0,.4); }
+  dialog h2 { margin: 0 0 8px; font-size: 16px; }
+  dialog dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; margin: 12px 0; }
+  dialog dt { color: var(--muted); }
+  dialog dd { margin: 0; word-break: break-word; }
+  dialog pre { white-space: pre-wrap; background: var(--bg); padding: 10px; border-radius: 6px;
+    font: inherit; max-height: 300px; overflow: auto; }
+  @media (max-width: 640px) {
+    .cell { min-height: 70px; } .week .cell { min-height: 160px; }
+    .ev b { display: none; } .dow { font-size: 10px; padding: 4px 2px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Scheduled posts</h1>
+  <button id="prev" aria-label="Previous">‹</button>
+  <button id="today">Today</button>
+  <button id="next" aria-label="Next">›</button>
+  <span id="label"></span>
+  <span class="spacer"></span>
+  <button id="vMonth" class="on">Month</button>
+  <button id="vWeek">Week</button>
+  <select id="tz" title="Timezone the calendar is laid out in"></select>
+</header>
+<main>
+  <div class="legend" id="legend"></div>
+  <div id="view" style="margin-top:12px"></div>
+</main>
+<dialog id="dlg">
+  <h2 id="dTitle"></h2>
+  <dl id="dList"></dl>
+  <pre id="dCaption"></pre>
+  <form method="dialog" style="text-align:right"><button>Close</button></form>
+</dialog>
+<script>
+const ET = 'America/New_York';
+const LOCAL = Intl.DateTimeFormat().resolvedOptions().timeZone;
+const PLATFORMS = { linkedin: 'LinkedIn', x: 'X', instagram: 'Instagram', tiktok: 'TikTok' };
+const $ = id => document.getElementById(id);
+
+let posts = [];
+let view = 'month';
+let tz = ET;
+let cursor = ymd(new Date(), ET);   // {y, m, d} in the display zone
+const hidden = new Set();
+
+// Calendar-date parts of an instant in a given zone.
+function ymd(date, zone) {
+  const p = Object.fromEntries(new Intl.DateTimeFormat('en-CA', {
+    timeZone: zone, year: 'numeric', month: 'numeric', day: 'numeric' })
+    .formatToParts(date).map(x => [x.type, x.value]));
+  return { y: +p.year, m: +p.month, d: +p.day };
+}
+const key = o => `${o.y}-${o.m}-${o.d}`;
+// Pure calendar arithmetic, done in UTC so DST never shifts a day.
+function addDays(o, n) {
+  const t = new Date(Date.UTC(o.y, o.m - 1, o.d + n));
+  return { y: t.getUTCFullYear(), m: t.getUTCMonth() + 1, d: t.getUTCDate() };
+}
+const dow = o => new Date(Date.UTC(o.y, o.m - 1, o.d)).getUTCDay();
+const fmtTime = (date, zone) => date.toLocaleTimeString('en-US',
+  { timeZone: zone, hour: 'numeric', minute: '2-digit' });
+const fmtFull = (date, zone) => date.toLocaleString('en-US', { timeZone: zone,
+  weekday: 'short', month: 'short', day: 'numeric', year: 'numeric',
+  hour: 'numeric', minute: '2-digit', timeZoneName: 'short' });
+
+function setupControls() {
+  const zones = [...new Set([ET, LOCAL])];
+  for (const z of zones) {
+    const o = document.createElement('option');
+    o.value = z; o.textContent = z === LOCAL && z !== ET ? `${z} (you)` : `${z} (audience)`;
+    $('tz').append(o);
+  }
+  $('tz').onchange = e => { tz = e.target.value; cursor = ymd(new Date(), tz); render(); };
+  $('prev').onclick = () => move(-1);
+  $('next').onclick = () => move(1);
+  $('today').onclick = () => { cursor = ymd(new Date(), tz); render(); };
+  $('vMonth').onclick = () => setView('month');
+  $('vWeek').onclick = () => setView('week');
+  for (const [k, name] of Object.entries(PLATFORMS)) {
+    const l = document.createElement('label');
+    const c = document.createElement('input');
+    c.type = 'checkbox'; c.checked = true;
+    c.onchange = () => { c.checked ? hidden.delete(k) : hidden.add(k); render(); };
+    const dot = document.createElement('span');
+    dot.className = 'dot'; dot.style.background = `var(--${k})`;
+    l.append(c, dot, name);
+    $('legend').append(l);
+  }
+}
+
+function setView(v) {
+  view = v;
+  $('vMonth').classList.toggle('on', v === 'month');
+  $('vWeek').classList.toggle('on', v === 'week');
+  render();
+}
+
+function move(n) {
+  if (view === 'week') cursor = addDays(cursor, 7 * n);
+  else {
+    const t = new Date(Date.UTC(cursor.y, cursor.m - 1 + n, 1));
+    cursor = { y: t.getUTCFullYear(), m: t.getUTCMonth() + 1, d: 1 };
+  }
+  render();
+}
+
+function render() {
+  const byDay = {};
+  for (const p of posts) {
+    if (hidden.has(p.platform)) continue;
+    (byDay[key(ymd(p.date, tz))] ||= []).push(p);
+  }
+
+  let start, count;
+  if (view === 'month') {
+    const first = { y: cursor.y, m: cursor.m, d: 1 };
+    start = addDays(first, -dow(first));
+    count = 42;
+    $('label').textContent = new Date(Date.UTC(cursor.y, cursor.m - 1, 1))
+      .toLocaleDateString('en-US', { timeZone: 'UTC', month: 'long', year: 'numeric' });
+  } else {
+    start = addDays(cursor, -dow(cursor));
+    count = 7;
+    const end = addDays(start, 6);
+    const f = o => new Date(Date.UTC(o.y, o.m - 1, o.d))
+      .toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric' });
+    $('label').textContent = `${f(start)} – ${f(end)}, ${end.y}`;
+  }
+
+  const grid = document.createElement('div');
+  grid.className = 'grid ' + view;
+  for (const d of ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']) {
+    const h = document.createElement('div'); h.className = 'dow'; h.textContent = d; grid.append(h);
+  }
+  const todayKey = key(ymd(new Date(), tz));
+  const now = Date.now();
+  for (let i = 0; i < count; i++) {
+    const day = addDays(start, i);
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    if (view === 'month' && day.m !== cursor.m) cell.classList.add('out');
+    if (key(day) === todayKey) cell.classList.add('today');
+    const num = document.createElement('div');
+    num.className = 'num'; num.textContent = day.d;
+    cell.append(num);
+    for (const p of byDay[key(day)] || []) {
+      const b = document.createElement('button');
+      b.className = 'ev' + (p.date.getTime() < now ? ' past' : '');
+      b.style.borderLeftColor = `var(--${p.platform}, var(--muted))`;
+      const t = document.createElement('b');
+      t.textContent = fmtTime(p.date, tz);
+      b.append(t, `${PLATFORMS[p.platform] || p.platform} · ${p.caption.split('\n')[0]}`);
+      b.title = `${PLATFORMS[p.platform] || p.platform} ${p.type} · ${fmtTime(p.date, tz)}`;
+      b.onclick = () => openPost(p);
+      cell.append(b);
+    }
+    grid.append(cell);
+  }
+  $('view').replaceChildren(grid);
+
+  if (!posts.length) {
+    const e = document.createElement('div');
+    e.className = 'empty';
+    e.innerHTML = 'Nothing scheduled yet. Posts appear here after <code>node schedule.cjs</code> ' +
+      'schedules them successfully.<br>Already scheduled some? Run <code>node calendar.cjs --backfill</code>.';
+    $('view').append(e);
+  }
+}
+
+function openPost(p) {
+  $('dTitle').textContent = `${PLATFORMS[p.platform] || p.platform} · ${p.type}`;
+  const rows = [
+    ['ET', fmtFull(p.date, ET)],
+    ...(LOCAL !== ET ? [['Your time', fmtFull(p.date, LOCAL)]] : []),
+    ['ID', p.id],
+    ['Files', p.files && p.files.length ? p.files.join('\n') : 'none'],
+    ['Recorded', new Date(p.recordedAt).toLocaleString()],
+  ];
+  $('dList').replaceChildren(...rows.flatMap(([k, v]) => {
+    const dt = document.createElement('dt'); dt.textContent = k;
+    const dd = document.createElement('dd'); dd.textContent = v; dd.style.whiteSpace = 'pre-line';
+    return [dt, dd];
+  }));
+  $('dCaption').textContent = p.caption;
+  $('dlg').showModal();
+}
+
+async function load() {
+  try {
+    const r = await fetch('calendar.json', { cache: 'no-store' });
+    const data = r.ok ? await r.json() : { posts: [] };
+    posts = (data.posts || []).map(p => ({ ...p, caption: p.caption || '', date: new Date(p.at) }))
+      .filter(p => !isNaN(p.date));
+  } catch { posts = []; }
+  render();
+}
+
+setupControls();
+load();
+// Pick up posts scheduled while the page is open.
+document.addEventListener('visibilitychange', () => { if (!document.hidden) load(); });
+</script>
+</body>
+</html>

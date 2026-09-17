@@ -15,6 +15,7 @@ const puppeteer = require('puppeteer-core');
 const path = require('path');
 const fs = require('fs');
 const { loadPost, markScheduled } = require('./lib/manifest.cjs');
+const { recordScheduled } = require('./lib/calendar.cjs');
 
 const DRIVERS = {
   linkedin: require('./lib/linkedin.cjs'),
@@ -117,7 +118,13 @@ async function runOne(id) {
     return 'dry-run';
   }
   markScheduled(manifestPath, post.id);
-  console.log(`\nSUCCESS: "${post.id}" scheduled for ${post.whenLabel}. Manifest updated.`);
+  try {
+    recordScheduled(__dirname, post);
+  } catch (e) {
+    // The post is on the platform; a calendar hiccup must not report it as failed.
+    console.log('   note: calendar not updated:', e.message);
+  }
+  console.log(`\nSUCCESS: "${post.id}" scheduled for ${post.whenLabel}. Manifest and calendar updated.`);
   return 'scheduled';
 }
 
